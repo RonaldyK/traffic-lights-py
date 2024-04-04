@@ -23,7 +23,8 @@ def loop():
         else:
             normal_operation_mode()
 
-
+def uSir():
+    print("is gay")
 
 
 # Below will be all the different subsystems for the project.
