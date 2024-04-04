@@ -6,7 +6,7 @@ This project implements a traffic control system that manages vehicular and pede
 
 1. Clone the repository:
 
-git clone https://github.com/your-username/traffic-control-system.git
+git clone https://github.com/RonaldyK/traffic-lights-py.git
 
 2. Navigate to the project directory:
 
