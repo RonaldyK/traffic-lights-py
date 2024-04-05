@@ -193,7 +193,7 @@ def sevenSeg(message):
         " ": "0000000"
     }
     binaryMesasge = []
-    for char in message:
+    for char in message[:4]: # This only takes a string slice of the first 4 charecters in the message since that's the max amount of charecters which can be displayed.
         if char in lookupDictionary:
             binaryMesasge.append(lookupDictionary[char])
         else:
