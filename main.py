@@ -1,5 +1,5 @@
 import time
-import matplotlib
+import matplotlib.pyplot as plt
 import math
 import random
 
@@ -102,9 +102,9 @@ def normal_operation_mode():
         startTime = time.time()
         print("I'm in normal op mode")
         distanceMeasured.append(read_sensor())
-        print(f"Distance to nearest vehicle: {distanceMeasured}cm")
+        print(f"Distance to nearest vehicle: {distanceMeasured[-1]}cm")
         endTime = time.time()
-        print(f"Polling loop time: {startTime - endTime}sec")
+        print(f"Polling loop time: {endTime - startTime}sec")
     except KeyboardInterrupt:
         print("\n")
         setup()
@@ -112,32 +112,43 @@ def normal_operation_mode():
 
 
 def data_observation_mode():
+    global distanceMeasured
     try:
         print("I'm in data op mode")
+        if len(distanceMeasured) < 20:
+            print("Insufficient data is available for the plot. Returning to the menu\n")
+            setup()
+            return
+        else:
+            print("Displaying graph!")
+            traffic_graph_plot(distanceMeasured)
+            setup()
+            return
     except KeyboardInterrupt:
         print("\n")
         setup()
 
+def traffic_graph_plot(distanceMeasured):
+    plt.figure(figsize=(8, 6))
+    plt.plot(distanceMeasured, marker='x')
+    plt.xlabel("Time (seconds)")
+    plt.ylabel("Distance from car (cm)")
+    plt.xlim(0, len(distanceMeasured))  
+    plt.ylim(0, max(distanceMeasured) + 10)  
+    plt.legend(['Traffic Distance'])  
+    plt.show(block=True)  
+
 def read_sensor():
     rawDistances = []
-    while True:
-        sensorReading = random.randint(1, 30)
-        if sensorReading <= ultraSensorCutoff:
-            rawDistances.append(sensorReading)
-        else:
-            continue
-
-
-        if len(rawDistances) > 4:
-            rawDistances.pop(0)
-        print(rawDistances)
-        if len(rawDistances) == 4:    
-            averageDistance = sum(rawDistances) / 4
-            print(f"Average ultrasonic sensor reading: {averageDistance}cm")
-            return averageDistance
-        else:
-            print("Insufficient data points.")
+    for i in range(4):
+        sensorReading = random.randint(1, 20)
+        rawDistances.append(sensorReading)
         time.sleep(0.25)
+
+    print(rawDistances)   
+    averageDistance = sum(rawDistances) / 4
+    # print(f"Average ultrasonic sensor reading: {averageDistance}cm")
+    return averageDistance
 
 
 if __name__ == '__main__':
