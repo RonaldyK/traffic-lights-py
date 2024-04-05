@@ -97,8 +97,8 @@ def maintenance_adjustment_mode():
 
 
 def normal_operation_mode():
+    global distanceMeasured
     try:
-        global distanceMeasured
         startTime = time.time()
         print("I'm in normal op mode")
         distanceMeasured.append(read_sensor())
@@ -140,10 +140,10 @@ def traffic_graph_plot(distanceMeasured):
 
 def read_sensor():
     rawDistances = []
-    for i in range(4):
+    for _ in range(4):
         sensorReading = random.randint(1, 20)
         rawDistances.append(sensorReading)
-        time.sleep(0.25)
+        time.sleep(0.25) # Time between sensor polls
 
     print(rawDistances)   
     averageDistance = sum(rawDistances) / 4
@@ -200,6 +200,9 @@ def sevenSeg(message):
             binaryMesasge.append(lookupDictionary[" "])
 
     return binaryMesasge
+
+def traffic_stage_manager():
+    pass
 
 
 if __name__ == '__main__':
