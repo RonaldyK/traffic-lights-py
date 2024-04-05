@@ -150,6 +150,57 @@ def read_sensor():
     # print(f"Average ultrasonic sensor reading: {averageDistance}cm")
     return averageDistance
 
+def sevenSeg(message):
+    lookupDictionary = {
+        "0": "1111110",
+        "1": "0110000",
+        "2": "1101101",
+        "3": "1111001",
+        "4": "0110011",
+        "5": "1011011",
+        "6": "1011111",
+        "7": "1110000",
+        "8": "1111111",
+        "9": "1111011",
+        "A": "1110111",
+        "b": "0011111",
+        "C": "1001110",
+        "c": "0111101",
+        "d": "1001111",
+        "E": "1000111",
+        "F": "1011110",
+        "g": "0110111",
+        "G": "0110000",
+        "H": "0111100",
+        "h": "1010111",
+        "i": "0001110",
+        "I": "1010100",
+        "j": "1110110",
+        "L": "1111110",
+        "l": "1100111",
+        "n": "1101011",
+        "N": "1100110",
+        "O": "1011011",
+        "o": "0001111",
+        "p": "0111110",
+        "q": "0111011",
+        "r": "1101100",
+        "S": "0000001",
+        "t": "0001000",
+        "U": "0000000",
+        "u": "0001001",
+        "y": "0000001",
+        " ": "0000000"
+    }
+    binaryMesasge = []
+    for char in message:
+        if char in lookupDictionary:
+            binaryMesasge.append(lookupDictionary[char])
+        else:
+            binaryMesasge.append(lookupDictionary[" "])
+
+    return binaryMesasge
+
 
 if __name__ == '__main__':
     setup()
