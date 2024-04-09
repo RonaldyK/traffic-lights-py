@@ -100,9 +100,7 @@ def normal_operation_mode():
     global distanceMeasured
     try:
         startTime = time.time()
-        print("I'm in normal op mode")
-        distanceMeasured.append(read_sensor())
-        print(f"Distance to nearest vehicle: {distanceMeasured[-1]}cm")
+        traffic_stage_manager()
         endTime = time.time()
         print(f"Polling loop time: {endTime - startTime}sec")
     except KeyboardInterrupt:
@@ -117,6 +115,7 @@ def data_observation_mode():
         print("I'm in data op mode")
         if len(distanceMeasured) < 20:
             print("Insufficient data is available for the plot. Returning to the menu\n")
+            time.sleep(1.5)
             setup()
             return
         else:
@@ -145,7 +144,7 @@ def read_sensor():
         rawDistances.append(sensorReading)
         time.sleep(0.25) # Time between sensor polls
 
-    print(rawDistances)   
+    # print(rawDistances)   
     averageDistance = sum(rawDistances) / 4
     # print(f"Average ultrasonic sensor reading: {averageDistance}cm")
     return averageDistance
@@ -202,7 +201,104 @@ def sevenSeg(message):
     return binaryMesasge
 
 def traffic_stage_manager():
-    pass
+    
+    """
+    Used to control the state of traffic lights. Also used to display information about the current stage of traffic operations, the distance to the nearest vehicle in two decimal cm readings, and the presence of pedestrians as the total number of presses on the console.
+        Paramters:
+            function has no parameters
+        Returns:
+            function has no returns
+    """
+    #4. create a list to hold dictionaries containing information about the duration, main road traffic lights, side road traffic lights, and pedestrian lights of each traffic stage
+    trafficOperation = [
+        {"duration": 30,
+        "mainRoadLights": "Green",
+        "sideRoadLights": "Red",
+        "pedestrianLights": "Red"
+        },
+
+        {"duration": 3,
+        "mainRoadLights": "Yellow",
+        "sideRoadLights": "Red",
+        "pedestrianLights": "Red"
+        },
+
+        {"duration": 3,
+        "mainRoadLights": "Red",
+        "sideRoadLights": "Red",
+        "pedestrianLights": "Red"
+        },
+
+        {"duration": 30,
+        "mainRoadLights": "Red",
+        "sideRoadLights": "Green",
+        "pedestrianLights": "Green"
+        },
+
+        {"duration": 3,
+        "mainRoadLights": "Red",
+        "sideRoadLights": "Yellow",
+        "pedestrianLights": "Flashing Green at 2-3 Hz"
+        },
+
+        {"duration": 3,
+        "mainRoadLights": "Red",
+        "sideRoadLights": "Red",
+        "pedestrianLights": "Red"
+        }
+    ]
+
+    #5. initialise currentStage and pedestrianCount variables, set them equal to zero
+    currentStage = 0
+    pedestrianCount = 0
+    global distanceMeasured
+    
+    #6. loop to control the state of traffic lights and display information about the current traffic stage operations on the console
+    while True:
+            
+            try: 
+                #7. displays the current stage of traffic operation on the console once per stage in the current sequence
+                print(f"Current Stage: Stage {currentStage + 1}\n")
+                print(f'Main Road Traffic Lights: {trafficOperation[currentStage]["mainRoadLights"]}')
+                print(f'Side Road Traffic Lights: {trafficOperation[currentStage]["sideRoadLights"]}')
+                print(f'Pedestrian Lights: {trafficOperation[currentStage]["pedestrianLights"]}\n')
+
+                #8. displays presence of pedestrians on the console as the total number of presses at the beginning of stage three. before stage three (stages one & two), the amount of state changes from the pushbutton is retrieved and stored inside the variable pedestrianCount
+                if currentStage == 0:
+                    pedestrianCount1 = random.randint(0,10)
+                elif currentStage == 1:
+                    pedestrianCount2 = random.randint(0,3)
+                elif currentStage == 2:
+                    pedestrianCount = pedestrianCount1 + pedestrianCount2
+                    print(f"Total number of pedestrian presses: {pedestrianCount}\n")
+
+                #9. create a variable stageEndTime to store the end time of the current traffic stage in the current sequence
+                stageDuration = trafficOperation[currentStage]["duration"]
+                stageEndTime = time.time() + stageDuration
+
+                #10. loop to display the distance to the nearest vehicle in two decimal cm readings on the console, once every 1-3 seconds
+                while stageEndTime > time.time():
+                        distanceMeasured.append(read_sensor())
+                        print(f"Distance to nearest vehicle: {distanceMeasured[-1]}cm")
+                        subsequentDisplay = min(3, stageEndTime - time.time())
+                        time.sleep(subsequentDisplay)
+                
+                #11. line break between two traffic stages 
+                print ("\n\n\n")
+
+                #12. update the value of currentStage to proceed to the next traffic stage in the current sequence
+                currentStage += 1
+        
+                #13. restart from stage one after stage six. reset the total number of pedestrain presses every time the traffic operation sequence restarts at stage one
+                if currentStage % len(trafficOperation) == 0:
+                    currentStage = 0
+                    pedestrianCount = 0
+
+            #14. ctrl+c to break from the loop and return to the display service menu function
+            except KeyboardInterrupt:
+                print("\n")
+                setup()
+                return
 
 
 if __name__ == '__main__':
