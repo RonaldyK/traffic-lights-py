@@ -9,12 +9,43 @@ ultraSensorCutoff = 20
 distanceMeasured = []
 
 def setup():
+
+    """
+    The setup function that initializes the program by displaying the service menu and setting the user's choice.
+
+    The function calls the `display_service_menu()` function to display the service menu and prompt the user to select an operating mode.
+    The user's choice is then assigned to the global variable `userChoice`.
+
+    After setting the `userChoice` variable, the function returns, allowing the program to proceed with the selected operating mode.
+
+    Returns:
+        None
+
+    """
+
     global userChoice
     userChoice = display_service_menu()
 
 
 # Control Subsystem
 def loop():
+
+    """
+    The main loop function that controls the execution of different operating modes based on user choice.
+
+    The function enters an infinite loop and checks the value of the `userChoice` variable to determine which operating mode to execute:
+
+    - If `userChoice` is 3, the function calls the `maintenance_adjustment_mode()` function to enter the maintenance adjustment mode.
+    - If `userChoice` is 2, the function calls the `data_observation_mode()` function to enter the data observation mode.
+    - If `userChoice` is any other value (default), the function calls the `normal_operation_mode()` function to enter the normal operation mode.
+
+    The loop continues indefinitely until the program is manually terminated or an exception occurs.
+
+    Returns:
+        None
+
+    """
+
     while True:
         if userChoice == 3:
             maintenance_adjustment_mode()
@@ -28,6 +59,32 @@ def loop():
 
 # Service Subsystem
 def display_service_menu():
+
+    """
+    Displays the service menu and prompts the user to select an operating mode.
+
+    The function displays a welcome message and presents the user with three operating mode options:
+    1. Normal Operation Mode
+    2. Data Observation Mode
+    3. Maintenance Adjustment Mode
+
+    The user is prompted to enter the number corresponding to their desired operating mode.
+
+    If the user enters a valid option (1, 2, or 3), the function returns the selected option as an integer.
+
+    If the user enters an invalid option, the function displays an error message and prompts the user to enter a valid option again.
+
+    If the user enters an invalid input, the function displays an error message and prompts the user to enter a valid integer.
+
+    If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character, displays an
+    "Exiting the program..." message, and terminates the program using `exit()`.
+
+    Returns:
+        int: The selected operating mode option (1, 2, or 3).
+
+
+    """
+
     print(f"Welcome!\n" 
           "Please select which operating mode you want to boot into.\n\n"
           "1.Normal Operation Mode\n"
@@ -51,6 +108,34 @@ def display_service_menu():
             exit()
 
 def maintenance_adjustment_mode():
+
+    """
+    Enters the maintenance adjustment mode to modify system parameters.
+
+    The function prompts the user to enter a pin for authentication. If the entered pin matches the `settingPin`,
+    the user gains access to the maintenance mode. Otherwise, an "Incorrect pin" message is displayed, and the user
+    is prompted to enter the pin again.
+
+    Once authenticated, the function displays the available parameters that can be edited, along with their current values.
+    The user is prompted to select a parameter to edit by entering the corresponding number.
+
+    If the user selects "0" to exit the maintenance mode, the function prints "Exiting Maintenance Mode..." and returns
+    to the setup menu.
+
+    If the user selects "1" to edit the ultrasonic sensor cutoff distance, the function prompts the user to enter an
+    integer value between 1 and 20 (inclusive). If the entered value is valid, the `ultraSensorCutoff` global variable
+    is updated with the new value, and a confirmation message is printed. If the entered value is invalid, an appropriate
+    error message is displayed, and the user is prompted to enter a valid value again.
+
+    If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character and
+    returns to the setup menu.
+
+    Returns:
+        None
+
+
+    """
+
     global ultraSensorCutoff
     userAuth = 0
     try:
@@ -97,6 +182,25 @@ def maintenance_adjustment_mode():
 
 
 def normal_operation_mode():
+
+    """
+    Enters the normal operation mode to manage traffic stages and measure distance.
+
+    The function starts by recording the current time using `time.time()` and stores it in the `startTime` variable.
+    It then calls the `traffic_stage_manager` function to manage the traffic stages and perform distance measurements.
+
+    After the `traffic_stage_manager` function completes, the function records the end time using `time.time()` and
+    stores it in the `endTime` variable. It calculates the duration of the polling loop by subtracting `startTime`
+    from `endTime` and prints the result in seconds.
+
+    If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character
+    and returns to the setup menu.
+
+    Returns:
+        None
+
+    """
+
     global distanceMeasured
     try:
         startTime = time.time()
@@ -110,6 +214,26 @@ def normal_operation_mode():
 
 
 def data_observation_mode():
+
+    """
+    Enters the data observation mode to display a graph of distance measurements.
+
+    The function checks if there are sufficient distance measurements (at least 20) available in the global
+    `distanceMeasured` list. If there is insufficient data, it prints a message indicating that and returns to
+    the setup menu after a 1.5-second delay.
+
+    If there is sufficient data, the function prints a message indicating that the graph is being displayed and
+    calls the `traffic_graph_plot` function to plot the graph of distance measurements. After displaying the graph,
+    it returns to the setup menu.
+
+    If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character
+    and returns to the setup menu.
+
+    Returns:
+        None
+
+    """
+
     global distanceMeasured
     try:
         print("I'm in data op mode")
@@ -128,6 +252,23 @@ def data_observation_mode():
         setup()
 
 def traffic_graph_plot(distanceMeasured):
+
+    """
+    Plots a graph of the distance measurements over time.
+
+    The function takes a list of distance measurements as input and creates a graph using the matplotlib library.
+    The graph shows the distance measurements on the y-axis and the corresponding time points on the x-axis.
+    The x-axis represents the time in seconds, assuming each measurement is taken at regular intervals.
+    The y-axis represents the distance from the car in centimeters.
+
+    Parameters:
+        distanceMeasured: A list of distance measurements in centimeters.
+
+    Returns:
+        None
+
+    """
+
     plt.figure(figsize=(8, 6))
     plt.plot(distanceMeasured, marker='x')
     plt.xlabel("Time (seconds)")
@@ -138,9 +279,22 @@ def traffic_graph_plot(distanceMeasured):
     plt.show(block=True)  
 
 def read_sensor():
+
+    """
+    Reads the distance to the nearest object using an ultrasonic sensor.
+
+    The function simulates reading from an ultrasonic sensor by generating random distance values
+    between 1 and 20 centimeters. It takes four readings with a 0.25 second delay between each reading.
+    The average of the four readings is calculated and returned as the final distance measurement.
+
+    Returns:
+        float: The average distance to the nearest object in centimeters, calculated from four sensor readings.
+
+    """
+
     rawDistances = []
     for _ in range(4):
-        sensorReading = random.randint(1, 20)
+        sensorReading = random.randint(2, 400)
         rawDistances.append(sensorReading)
         time.sleep(0.25) # Time between sensor polls
 
@@ -150,6 +304,26 @@ def read_sensor():
     return averageDistance
 
 def sevenSeg(message):
+
+    """
+    Converts a message string into a list of binary strings representing the state of a seven-segment display.
+
+    The function takes a message string as input and returns a list of binary strings. Each binary string
+    corresponds to a character in the message and represents the state of the seven segments needed to display
+    that character on a seven-segment display. The function uses a lookup dictionary to map each character to
+    its corresponding binary representation. If a character is not found in the lookup dictionary, a space
+    character is used instead. The function only considers the first four characters of the message string.
+
+    Parameters:
+        message: The message to be displayed on the seven-segment display.
+
+    Returns:
+        List: A list of binary strings representing the state of the seven-segment display for each character
+              in the message. Each binary string is 7 characters long, where '1' represents an active segment
+              and '0' represents an inactive segment.
+
+    """
+
     lookupDictionary = {
         "0": "1111110",
         "1": "0110000",
@@ -209,6 +383,7 @@ def traffic_stage_manager():
         Returns:
             function has no returns
     """
+
     #4. create a list to hold dictionaries containing information about the duration, main road traffic lights, side road traffic lights, and pedestrian lights of each traffic stage
     trafficOperation = [
         {"duration": 30,
