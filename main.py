@@ -453,10 +453,18 @@ def traffic_stage_manager():
 
                 #10. loop to display the distance to the nearest vehicle in two decimal cm readings on the console, once every 1-3 seconds
                 while stageEndTime > time.time():
+                        startTime = time.time()
                         distanceMeasured.append(read_sensor())
+                        # Calculates vehicle velocity based on the distance <- need to work on  this a bit more
+                        if len(distanceMeasured) > 2:
+                            carVelocity = distanceMeasured[-1] - distanceMeasured[-2] / 1.5
+                            print(f"Vehicle velocity: {carVelocity} cm/s")
+
                         print(f"Distance to nearest vehicle: {distanceMeasured[-1]}cm")
-                        subsequentDisplay = min(3, stageEndTime - time.time())
+                        subsequentDisplay = min(0.5, stageEndTime - time.time())
                         time.sleep(subsequentDisplay)
+                        endTime = time.time()
+                        print(f'Sensor polling time: {(endTime - startTime):.2f} seconds')
                 
                 #11. line break between two traffic stages 
                 print ("\n\n\n")
