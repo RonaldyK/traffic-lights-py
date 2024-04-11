@@ -137,6 +137,7 @@ def maintenance_adjustment_mode():
     """
 
     global ultraSensorCutoff
+    global settingPin
     userAuth = 0
     try:
         while True:
@@ -152,7 +153,8 @@ def maintenance_adjustment_mode():
             # Main logic  for maintenance adjustment mode
             print("Available parameters\n"
                  f"1. Ultrasound Cutoff Distance: {ultraSensorCutoff}cm\n"
-                  "0. Exit Maintenance Mode\n")
+                 f"2. User PIN: {settingPin}\n"
+                 f"0. Exit Maintenance Mode\n")
             userEdit = int(input("Please select which parameter you want to edit: "))
             if userEdit == 0:
                 print("Exiting Maintenance Mode...")
@@ -168,13 +170,30 @@ def maintenance_adjustment_mode():
                         if 1 <= userEditValue <= 20:
                             ultraSensorCutoff = userEditValue
                             print(f"Ultrasound cutoff distance set to: {ultraSensorCutoff}cm")
+                            print("\n")
                             break
                         else:
                             print("Please enter an integer between 1 and 20.")        
                     except ValueError:
-                        print("Please enter a valid integer.")    
+                        print("Please enter a valid integer.")
+            if userEdit == 2:
+                print("Please enter a new 4 digit PIN.")
+                while True:
+                    try:
+                        userEditValue = int(input("New PIN: "))
+                        if len(str(userEditValue)) == 4:
+                            settingPin = userEditValue
+                            print(f"New PIN set to: {settingPin}")
+                            print("\n")
+                            break
+                        else:
+                            print("PIN can only be 4 digits long.")        
+                    except ValueError:
+                        print("Please enter a valid integer.")
+            else:
+                print("Please entered a valid option!")            
     except ValueError:
-        print("Please enter a valid integer.")
+        print("Please enter a valid integer.\n")
     except KeyboardInterrupt:
         print("\n")
         setup()
