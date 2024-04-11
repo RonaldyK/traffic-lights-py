@@ -193,7 +193,7 @@ def normal_operation_mode():
     stores it in the `endTime` variable. It calculates the duration of the polling loop by subtracting `startTime`
     from `endTime` and prints the result in seconds.
 
-    If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character
+    If a keyboard interrupt occurs during the execution of this function, it prints a newline character
     and returns to the setup menu.
 
     Returns:
@@ -206,7 +206,7 @@ def normal_operation_mode():
         startTime = time.time()
         traffic_stage_manager()
         endTime = time.time()
-        print(f"Polling loop time: {endTime - startTime}sec")
+        print(f"Time for one normal operation mode cycle: {endTime - startTime}sec")
     except KeyboardInterrupt:
         print("\n")
         setup()
@@ -455,12 +455,16 @@ def traffic_stage_manager():
                 while stageEndTime > time.time():
                         startTime = time.time()
                         distanceMeasured.append(read_sensor())
+                        # So that distanceMeasured only contains the latest data.
+                        if len(distanceMeasured) == 21:
+                            distanceMeasured.pop(0)
                         # Calculates vehicle velocity based on the distance <- need to work on  this a bit more
                         if len(distanceMeasured) > 2:
                             carVelocity = distanceMeasured[-1] - distanceMeasured[-2] / 1.5
-                            print(f"Vehicle velocity: {carVelocity} cm/s")
+                            print(f"Vehicle velocity: {carVelocity:.2f} cm/s")
 
                         print(f"Distance to nearest vehicle: {distanceMeasured[-1]}cm")
+                        print(f"distanceMeasured: {distanceMeasured}") # Remove later, only for debugging
                         subsequentDisplay = min(0.5, stageEndTime - time.time())
                         time.sleep(subsequentDisplay)
                         endTime = time.time()
