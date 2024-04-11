@@ -1,3 +1,9 @@
+############################################################
+#                 Monash University Malaysia               #
+#                           M2                             #
+#                    Rafghaan Mohamed Ali                  #
+#                      Date: 4/3/2024                      #
+############################################################
 import time
 import matplotlib.pyplot as plt
 import math
