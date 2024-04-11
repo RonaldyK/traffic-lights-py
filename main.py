@@ -139,6 +139,7 @@ def maintenance_adjustment_mode():
     global ultraSensorCutoff
     global settingPin
     userAuth = 0
+    print(sevenSeg("HAL1")) # Remove this later.
     try:
         while True:
             print("Entered Maintenance Mode")
@@ -254,6 +255,7 @@ def data_observation_mode():
     """
 
     global distanceMeasured
+    print(sevenSeg("HAL1")) # Remove this later.
     try:
         print("I'm in data op mode")
         if len(distanceMeasured) < 20:
@@ -487,7 +489,7 @@ def traffic_stage_manager():
                         subsequentDisplay = min(0.5, stageEndTime - time.time())
                         time.sleep(subsequentDisplay)
                         endTime = time.time()
-                        print(f'Sensor polling time: {(endTime - startTime):.2f} seconds')
+                        print(f'Sensor polling cycle: {(endTime - startTime):.2f} seconds')
                 
                 #11. line break between two traffic stages 
                 print ("\n\n\n")
