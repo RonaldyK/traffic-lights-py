@@ -69,7 +69,8 @@ def setup():
     The user's choice is then assigned to the global variable `userChoice`.
 
     After setting the `userChoice` variable, the function returns, allowing the program to proceed with the selected operating mode.
-
+    Parameters:
+        No parameters
     Returns:
         None
 
@@ -92,7 +93,8 @@ def loop():
     - If `userChoice` is any other value (default), the function calls the `normal_operation_mode()` function to enter the normal operation mode.
 
     The loop continues indefinitely until the program is manually terminated or an exception occurs.
-
+    Parameters:
+        No parameters
     Returns:
         None
 
@@ -181,7 +183,8 @@ def maintenance_adjustment_mode():
 
     If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character and
     returns to the setup menu.
-
+    Parameters:
+        No Parameters
     Returns:
         None
 
