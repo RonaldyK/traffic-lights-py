@@ -1,9 +1,39 @@
-############################################################
-#                 Monash University Malaysia               #
-#                           M2                             #
-#                    Rafghaan Mohamed Ali                  #
-#                      Date: 4/3/2024                      #
-############################################################
+# M2 Checkpoint 1 - Traffic Light Project
+# Created By: MH05                
+# Created Date: 12/04/2024                              
+# version = '1.0'                  
+# Globals   
+    # userChoice = 0          
+    # settingPin = 1234        
+    # ultraSensorCutoff = 20  
+    # distanceMeasured = []   
+
+    # stageOneDuration = 30
+    # stageTwoDuration = 3
+    # stageThreeDuration = 3
+    # stageFourDuration = 30
+    # stageFiveDuration = 3
+    # stageSixDuration = 3
+    # currentStage = 0
+    # pushButtonStage1 = []
+    # pushButtonStage2 = []
+    # pedestrianCount = 0
+    # pedestrianCount1 = 0
+    # pedestrianCount2 = 0
+# Functions
+    # setup()
+    # loop()
+    # display_service_menu()
+    # maintenance_adjustment_mode()
+    # normal_operation_mode()
+    # data_observation_mode()
+    # traffic_graph_plot(distanceMeasured)
+    # read_sensor()
+    # sevenSeg(message)
+    # push_button()
+    # traffic_stage_manager()
+                      
+
 import time
 import matplotlib.pyplot as plt
 import math
