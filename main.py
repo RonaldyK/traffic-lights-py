@@ -42,19 +42,20 @@ import random
 
 
 userChoice = 0          # User choice tracks which opeerating mode the system is supposed to be in.
-settingPin = 1234       # 
-ultraSensorCutoff = 20  #
-distanceMeasured = []   #
+settingPin = 1234       # Pin to enter maintanance mode.
+ultraSensorCutoff = 20  # Cutoff distance for the ultrasound sensor
+distanceMeasured = []   # List which hold values for proccessed distance measurements from the ultrasound sensor.
 
-stageOneDuration = 30
-stageTwoDuration = 3
-stageThreeDuration = 3
-stageFourDuration = 30
-stageFiveDuration = 3
-stageSixDuration = 3
-currentStage = 0
-pushButtonStage1 = []
-pushButtonStage2 = []
+stageOneDuration = 30   # These 6 variables holds the duration for each traffic light stage in seconds
+stageTwoDuration = 3    #
+stageThreeDuration = 3  #
+stageFourDuration = 30  #
+stageFiveDuration = 3   #
+stageSixDuration = 3    #
+
+currentStage = 0        # Tracks the current traffic stage.
+pushButtonStage1 = []   # List which holds the number of state changes for pushbutton
+pushButtonStage2 = []   # List 
 pedestrianCount = 0
 pedestrianCount1 = 0
 pedestrianCount2 = 0
