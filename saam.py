@@ -9,25 +9,10 @@ import matplotlib.pyplot as plt
 import math
 import random
 
-
-
-userChoice = 0          # User choice tracks which opeerating mode the system is supposed to be in.
-settingPin = 1234       # 
-ultraSensorCutoff = 20  #
-distanceMeasured = []   #
-
-stageOneDuration = 30
-stageTwoDuration = 3
-stageThreeDuration = 3
-stageFourDuration = 30
-stageFiveDuration = 3
-stageSixDuration = 3
-currentStage = 0
-pushButtonStage1 = []
-pushButtonStage2 = []
-pedestrianCount = 0
-pedestrianCount1 = 0
-pedestrianCount2 = 0
+userChoice = 0
+settingPin = 1234
+ultraSensorCutoff = 20
+distanceMeasured = []
 
 def setup():
 
@@ -109,7 +94,7 @@ def display_service_menu():
     print(f"Welcome!\n" 
           "Please select which operating mode you want to boot into.\n\n"
           "1.Normal Operation Mode\n"
-          "2.Data Observation Mode\n"
+          "2.Data Observartion Mode\n"
           "3.Maintenance Adjustment Mode\n"
           )
     
@@ -159,17 +144,11 @@ def maintenance_adjustment_mode():
 
     global ultraSensorCutoff
     global settingPin
-    global stageOneDuration
-    global stageTwoDuration
-    global stageThreeDuration
-    global stageFourDuration
-    global stageFiveDuration
-    global stageSixDuration
     userAuth = 0
-    # print(sevenSeg("HAL1")) # Remove this later.
-    print("Entered Maintenance Mode")
+    print(sevenSeg("HAL1")) # Remove this later.
     try:
         while True:
+            print("Entered Maintenance Mode")
             # Input validation for user pin.
             while userAuth == 0:
                 userPin = int(input("Please enter pin: "))
@@ -182,8 +161,6 @@ def maintenance_adjustment_mode():
             print("Available parameters\n"
                  f"1. Ultrasound Cutoff Distance: {ultraSensorCutoff}cm\n"
                  f"2. User PIN: {settingPin}\n"
-                 f"3. Stage Interval Timing\n"
-                 f"4. Seven Segment Display\n"
                  f"0. Exit Maintenance Mode\n")
             userEdit = int(input("Please select which parameter you want to edit: "))
             if userEdit == 0:
@@ -220,103 +197,6 @@ def maintenance_adjustment_mode():
                             print("PIN can only be 4 digits long.")        
                     except ValueError:
                         print("Please enter a valid integer.")
-            if userEdit == 3:
-                print("Current stage duration intervals:\n"
-                      f"Stage One  : {stageOneDuration}\n"
-                      f"Stage Two  : {stageTwoDuration}\n"
-                      f"Stage Three: {stageThreeDuration}\n"
-                      f"Stage Four : {stageFourDuration}\n"
-                      f"Stage Five : {stageFiveDuration}\n"
-                      f"Stage Six  : {stageSixDuration}\n"
-                      "Note: You can press Ctrl+C to go back once desired parameters are edited.")
-                while True:
-                    try:
-                        userEditValueOne = int(input("New Stage One duration: "))
-                        if userEditValueOne > 0 and userEditValueOne % 3 == 0:
-                            stageOneDuration = userEditValueOne
-                            print(f"New Stage One duration set to: {stageOneDuration}")
-                            break
-                        else:
-                            print("Please enter a positive integer that is a multiple of 3.")
-                    except ValueError:
-                        print("Please enter a valid integer.")
-
-                while True:
-                    try:
-                        userEditValueTwo = int(input("New Stage Two duration: "))
-                        if userEditValueTwo > 0 and userEditValueTwo % 3 == 0:
-                            stageTwoDuration = userEditValueTwo
-                            print(f"New Stage Two duration set to: {stageTwoDuration}")
-                            break
-                        else:
-                            print("Please enter a positive integer that is a multiple of 3.")
-                    except ValueError:
-                        print("Please enter a valid integer.")
-
-                while True:
-                    try:
-                        userEditValueThree = int(input("New Stage Three duration: "))
-                        if userEditValueThree > 0 and userEditValueThree % 3 == 0:
-                            stageThreeDuration = userEditValueThree
-                            print(f"New Stage Three duration set to: {stageThreeDuration}")
-                            break
-                        else:
-                            print("Please enter a positive integer that is a multiple of 3.")
-                    except ValueError:
-                        print("Please enter a valid integer.")
-
-                while True:
-                    try:
-                        userEditValueFour = int(input("New Stage Four duration: "))
-                        if userEditValueFour > 0 and userEditValueFour % 3 == 0:
-                            stageFourDuration = userEditValueFour
-                            print(f"New Stage Four duration set to: {stageFourDuration}")
-                            break
-                        else:
-                            print("Please enter a positive integer that is a multiple of 3.")
-                    except ValueError:
-                        print("Please enter a valid integer.")
-
-                while True:
-                    try:
-                        userEditValueFive = int(input("New Stage Five duration: "))
-                        if userEditValueFive > 0 and userEditValueFive % 3 == 0:
-                            stageFiveDuration = userEditValueFive
-                            print(f"New Stage Five duration set to: {stageFiveDuration}")
-                            break
-                        else:
-                            print("Please enter a positive integer that is a multiple of 3.")
-                    except ValueError:
-                        print("Please enter a valid integer.")
-
-                while True:
-                    try:
-                        userEditValueSix = int(input("New Stage Six duration: "))
-                        if userEditValueSix > 0 and userEditValueSix % 3 == 0:
-                            stageSixDuration = userEditValueSix
-                            print(f"New Stage Six duration set to: {stageSixDuration}")
-                            break
-                        else:
-                            print("Please enter a positive integer that is a multiple of 3.")
-                    except ValueError:
-                        print("Please enter a valid integer.")
-            if userEdit == 4:
-                print("Please enter a message you want to show on the seven segment.\n"
-                      "Message should contain valid characters\n"
-                      "Digits: 0 to 9\n"
-                      "Uppercase letters: A, C, E, F, G, H, I, L, N, O, S, U\n"
-                      "Lowercase letters: b, c, d, g, h, i, j, l, n, o, p, q, r, t, u, y\n"
-                      "Space character\n"
-                      "Note: Invalid characters will be replaced with a space instead\n"
-                      "Note: Maximum output length of message will be 4 alphanumeric characters\n")
-                while True:
-                    try:
-                        userMessage = input("Message: ")
-                        print(sevenSeg(userMessage)) 
-                        print("\n")
-                        break    
-                    except ValueError:
-                        print("Please enter a valid integer.")        
             else:
                 print("Please entered a valid option!")            
     except ValueError:
@@ -381,9 +261,9 @@ def data_observation_mode():
     """
 
     global distanceMeasured
-   #  print(sevenSeg("HAL1")) # Remove this later.
-    print("Entered Data Observation Mode")
+    print(sevenSeg("HAL1")) # Remove this later.
     try:
+        print("I'm in data op mode")
         if len(distanceMeasured) < 20:
             print("Insufficient data is available for the plot. Returning to the menu\n")
             time.sleep(1.5)
@@ -521,44 +401,8 @@ def sevenSeg(message):
 
     return binaryMesasge
 
-def push_button():
-
-    """
-    Used to record the number of times the pedestrian push button is triggered when pressed, 
-    indicating the presence of pedestrians. The pedestrian push button triggers a single 
-    clean signal (de-bounced) when pressed.
-        Paramters:
-            function has no parameters
-        Returns:
-            function has no returns
-    """
-
-    global pushButtonStage1
-    global pushButtonStage2
-    flag = True
-    while True: 
-        buttonPressed = random.choice([True,False])
-        if buttonPressed == True and flag == True:
-            flag == False
-            if currentStage == 0:
-                pushButtonStage1.append(1)
-            if currentStage == 1:
-                pushButtonStage2.append(1)
-            break
-        else:
-            flag = True
-            break
-
-
-
 def traffic_stage_manager():
-    global stageOneDuration
-    global stageTwoDuration
-    global stageThreeDuration
-    global stageFourDuration
-    global stageFiveDuration
-    global stageSixDuration
-
+    
     """
     Used to control the state of traffic lights. Also used to display information about the current stage of traffic operations, the distance to the nearest vehicle in two decimal cm readings, and the presence of pedestrians as the total number of presses on the console.
         Paramters:
@@ -569,37 +413,37 @@ def traffic_stage_manager():
 
     #4. create a list to hold dictionaries containing information about the duration, main road traffic lights, side road traffic lights, and pedestrian lights of each traffic stage
     trafficOperation = [
-        {"duration": stageOneDuration,
+        {"duration": 30,
         "mainRoadLights": "Green",
         "sideRoadLights": "Red",
         "pedestrianLights": "Red"
         },
 
-        {"duration": stageTwoDuration,
+        {"duration": 3,
         "mainRoadLights": "Yellow",
         "sideRoadLights": "Red",
         "pedestrianLights": "Red"
         },
 
-        {"duration": stageThreeDuration,
+        {"duration": 3,
         "mainRoadLights": "Red",
         "sideRoadLights": "Red",
         "pedestrianLights": "Red"
         },
 
-        {"duration": stageFourDuration,
+        {"duration": 30,
         "mainRoadLights": "Red",
         "sideRoadLights": "Green",
         "pedestrianLights": "Green"
         },
 
-        {"duration": stageFiveDuration,
+        {"duration": 3,
         "mainRoadLights": "Red",
         "sideRoadLights": "Yellow",
         "pedestrianLights": "Flashing Green at 2-3 Hz"
         },
 
-        {"duration": stageSixDuration,
+        {"duration": 3,
         "mainRoadLights": "Red",
         "sideRoadLights": "Red",
         "pedestrianLights": "Red"
@@ -607,11 +451,9 @@ def traffic_stage_manager():
     ]
 
     #5. initialise currentStage and pedestrianCount variables, set them equal to zero
-    global currentStage
+    currentStage = 0
+    pedestrianCount = 0
     global distanceMeasured
-    global pedestrianCount
-    global pedestrianCount1
-    global pedestrianCount2
     
     #6. loop to control the state of traffic lights and display information about the current traffic stage operations on the console
     while True:
@@ -625,11 +467,10 @@ def traffic_stage_manager():
 
                 #8. displays presence of pedestrians on the console as the total number of presses at the beginning of stage three. before stage three (stages one & two), the amount of state changes from the pushbutton is retrieved and stored inside the variable pedestrianCount
                 if currentStage == 0:
-                    pushButtonStage1.clear()
-                    pushButtonStage2.clear()
-                if currentStage == 2:
-                    pedestrianCount1 = sum(filter(None, pushButtonStage1))
-                    pedestrianCount2 = sum(filter(None, pushButtonStage2))
+                    pedestrianCount1 = random.randint(0,10)
+                elif currentStage == 1:
+                    pedestrianCount2 = random.randint(0,3)
+                elif currentStage == 2:
                     pedestrianCount = pedestrianCount1 + pedestrianCount2
                     print(f"Total number of pedestrian presses: {pedestrianCount}\n")
 
@@ -639,25 +480,19 @@ def traffic_stage_manager():
 
                 #10. loop to display the distance to the nearest vehicle in two decimal cm readings on the console, once every 1-3 seconds
                 while stageEndTime > time.time():
-                        push_button()
                         startTime = time.time()
                         distanceMeasured.append(read_sensor())
                         # So that distanceMeasured only contains the latest data.
                         if len(distanceMeasured) == 21:
                             distanceMeasured.pop(0)
                         # Calculates vehicle velocity based on the distance <- need to work on  this a bit more
-                        if len(distanceMeasured) >= 2:
-                            carVelocity = distanceMeasured[-2] - distanceMeasured[-1] / 1.5
+                        if len(distanceMeasured) > 2:
+                            carVelocity = distanceMeasured[-1] - distanceMeasured[-2] / 1.5
                             print(f"Vehicle velocity: {carVelocity:.2f} cm/s")
 
-                        print(f"Distance to nearest vehicle: {distanceMeasured[-1]} cm\n")
-                        # print(f"distanceMeasured: {distanceMeasured}") # Remove later, only for debugging
+                        print(f"Distance to nearest vehicle: {distanceMeasured[-1]}cm")
+                        print(f"distanceMeasured: {distanceMeasured}") # Remove later, only for debugging
                         subsequentDisplay = min(0.5, stageEndTime - time.time())
-                        # print(subsequentDisplay) Remove later <- for debugging
-                        if subsequentDisplay < 0:
-                            endTime = time.time()
-                            print(f'Sensor polling cycle: {(endTime - startTime):.2f} seconds')
-                            continue
                         time.sleep(subsequentDisplay)
                         endTime = time.time()
                         print(f'Sensor polling cycle: {(endTime - startTime):.2f} seconds')
@@ -683,5 +518,4 @@ def traffic_stage_manager():
 if __name__ == '__main__':
     setup()
     loop()
-
 
