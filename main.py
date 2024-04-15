@@ -386,7 +386,7 @@ def normal_operation_mode():
         startTime = time.time()
         traffic_stage_manager()
         endTime = time.time()
-        print(f"Time for one normal operation mode cycle: {endTime - startTime}sec")
+       # print(f"Time for one normal operation mode cycle: {endTime - startTime}sec")
     except KeyboardInterrupt:
         print("\n")
         setup()
