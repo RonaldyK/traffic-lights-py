@@ -1,6 +1,6 @@
-# M2 Checkpoint 1 - Traffic Light Project
+# M2 Part 2 - MVP Submission (Traffic Light Project)
 # Created By: MH05                
-# Created Date: 12/04/2024                              
+# Created Date: 26/04/2024                              
 # version = '1.0'                  
 # Globals   
     # userChoice = 0          
@@ -94,7 +94,14 @@ shcp2Pin = 11 # Clock Pin # traffic lights
 
 
 def boardsetup():
+    """
+    Initializes the pins on the arduino board. First part of the code that gets run.
+    Parameters:
+        No parameters
+    Returns:
+        No parameters
 
+    """
     # Clear the shift registers.
     clear_register(stcpPin, shcpPin, dsPin)
     clear_register(stcp2Pin, shcp2Pin, ds2Pin)
@@ -138,7 +145,7 @@ def setup():
     Parameters:
         No parameters
     Returns:
-        None
+        No returns
 
     """
 
@@ -199,6 +206,8 @@ def display_service_menu():
     If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character, displays an
     "Exiting the program..." message, and terminates the program using `exit()`.
 
+    Parameters:
+        None
     Returns:
         int: The selected operating mode option (1, 2, or 3).
 
@@ -437,18 +446,59 @@ def maintenance_adjustment_mode():
 # 7 SEG HELPER FUCNTIONS
 
 def write_to_seg(digitIndex, digitData, latchPin, clockPin, serialInputPin):
+    """
+    Displays a digit on a multiplexed seven-segment display using shift registers.
+
+    This function takes the digit index, digit data, and pin numbers for the latch, clock, and serial input.
+    It reverses the digit data, turns off all the digits, shifts out the reversed digit data to the shift registers,
+    and sets the corresponding digit pin based on the digit index.
+
+    Parameters:
+        digitIndex (int): The index of the digit to display (0-3).
+        digitData (list): A list of integers representing the digit data.
+        latchPin (int): The pin number for the latch.
+        clockPin (int): The pin number for the clock.
+        serialInputPin (int): The pin number for the serial input.
+
+    Returns:
+        No returns
+
+    """
     reverseDigitData = reversed(digitData)
     turn_off_digits()
     shift_out(reverseDigitData, latchPin, clockPin, serialInputPin)
     set_digit_pin(digitIndex)
 
 def turn_off_digits():
+    """
+    Turns off all the digit pins on the multiplexed seven-segment display.
+
+    This function sets the digit pins (digitOne, digitTwo, digitThree, digitFour) to 1, effectively turning them off.
+    Parameters:
+        No parameters
+    Returns:
+        No returns
+    """
+
     board.digital_write(digitOne, 1)
     board.digital_write(digitTwo, 1)
     board.digital_write(digitThree, 1)
     board.digital_write(digitFour, 1)
 
 def set_digit_pin(digitIndex):
+    """
+    Sets the corresponding digit pin based on the digit index.
+
+    This function takes the digit index as a parameter and sets the corresponding digit pin
+    (digitOne, digitTwo, digitThree, digitFour) to 0 based on the index value.
+
+    Parameters:
+        digitIndex (int): The index of the digit (0-3).
+
+    Returns:
+        No returns
+    """
+
     if digitIndex == 0:
         board.digital_write(digitOne, 0)
     elif digitIndex == 1:
@@ -477,6 +527,8 @@ def normal_operation_mode():
     If a keyboard interrupt occurs during the execution of this function, it prints a newline character
     and returns to the setup menu.
 
+    Parameters:
+        None
     Returns:
         None
 
@@ -510,6 +562,8 @@ def data_observation_mode():
     If a keyboard interrupt (Ctrl+C) occurs during the execution of this function, it prints a newline character
     and returns to the setup menu.
 
+    Parameters:
+        None
     Returns:
         None
 
@@ -569,6 +623,8 @@ def read_sensor():
     between 1 and 20 centimeters. It takes four readings with a 0.25 second delay between each reading.
     The average of the four readings is calculated and returned as the final distance measurement.
 
+    Parameters:
+        None
     Returns:
         float: The average distance to the nearest object in centimeters, calculated from four sensor readings.
 
@@ -618,6 +674,7 @@ def seven_segment(inputMessage):
         "8": "1111111",
         "9": "1111011",
         "A": "1110111",
+        "a": "1110111",
         "B": "0011111",
         "b": "0011111",
         "C": "1001110",
@@ -625,7 +682,9 @@ def seven_segment(inputMessage):
         "d": "0111101",
         "D": "0111101",
         "E": "1001111",
+        "e": "1001111",
         "F": "1000111",
+        "f": "1000111",
         "g": "1011110",
         "G": "1011110",
         "H": "0110111",
@@ -635,9 +694,11 @@ def seven_segment(inputMessage):
         "j": "1111100",
         "J": "1111100",
         "K": "0100111",
+        "k": "0100111",
         "L": "0001110",
         "l": "0001110",
         "M": "1010101",
+        "m": "1010101",
         "n": "0010111",
         "N": "0010111",
         "O": "1111110",
@@ -649,16 +710,21 @@ def seven_segment(inputMessage):
         "R": "0000101",
         "r": "0000101",
         "S": "1011011",
+        "s": "1011011",
         "T": "0001111",
         "t": "0001111",
         "V": "0111110",
+        "v": "0111110",
         "U": "0111110",
         "W": "1111000",
+        "w": "1111000",
         "X": "0110111",
+        "x": "0110111",
         "u": "0111110",
         "y": "0111011",
         "Y": "0111011",
         "Z": "1101101",
+        "z": "1101101",
         " ": "0000000"
     }
     binaryMesasge = []
@@ -701,6 +767,25 @@ def seven_segment(inputMessage):
 # PUSHBUTTON CODE
 
 def pushbutton_callback(callbackData):
+    """
+    Callback function for the pushbutton event.
+
+    This function is called whenever a change in the pushbutton state is detected.
+    It debounces the pushbutton signal to avoid multiple triggers within a short time interval.
+    If the pushbutton is pressed (callbackData[2] == 0) during stage 0 or stage 1, it increments the pedestrian counter.
+    The last detected change time is updated to the current time.
+
+    Parameters:
+        callbackData (tuple): A list containing the callback data.
+            - callbackData[0]: The pin type.
+            - callbackData[1]: The address of the pushbutton pin.
+            - callbackData[2]: The current state of the pushbutton (0: pressed, 1: released).
+            - callbackData[3]: The timestamp of the pushbutton event.
+            
+
+    Returns:
+        None
+    """
     global lastDetectedChange
     global bouncyTimer
     global currentStage
@@ -718,6 +803,18 @@ def pushbutton_callback(callbackData):
 ## LIGHT CONTROL HELPER FUNCTIONS
 
 def shift_out(shiftData, latchPin, clockPin, serialInputPin):
+    """
+    Shifts out the given data to a shift register connected to the specified pins.
+
+    Parameters:
+        shiftData (str): The data to be shifted out, represented as a string of binary digits.
+        latchPin (int): The digital pin number connected to the latch pin of the shift register.
+        clockPin (int): The digital pin number connected to the clock pin of the shift register.
+        serialInputPin (int): The digital pin number connected to the serial data input pin of the shift register.
+
+    Returns:
+        No returns
+    """
     board.digital_write(latchPin, 0)
     for shiftBit in (shiftData):
         board.digital_write(clockPin, 0)
@@ -727,6 +824,17 @@ def shift_out(shiftData, latchPin, clockPin, serialInputPin):
     board.digital_write(latchPin, 0)
 
 def clear_register(latchPin, clockPin, serialInputPin):
+    """
+    Clears the shift register by shifting out all zeros.
+
+    Parameters:
+        latchPin (int): The digital pin number connected to the latch pin of the shift register.
+        clockPin (int): The digital pin number connected to the clock pin of the shift register.
+        serialInputPin (int): The digital pin number connected to the serial data input pin of the shift register.
+
+    Returns:
+        No returns
+    """
     shift_out("00000000", latchPin, clockPin, serialInputPin)
 
 ## LIGHT CONTROL HELPER FUNCTIONS END
