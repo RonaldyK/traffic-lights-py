@@ -5,3 +5,6 @@ lib64
 share
 pyvenv.cfg
 settings.json
+shiftreg.py
+trafficlights.py
+pushbutton.py
