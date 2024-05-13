@@ -45,6 +45,7 @@ userChoice = 0          # User choice tracks which opeerating mode the system is
 settingPin = 1234       # Pin to enter maintanance mode.
 ultraSensorCutoff = 20  # Cutoff distance for the ultrasound sensor
 distanceMeasured = []   # List which hold values for proccessed distance measurements from the ultrasound sensor.
+overSpeedLimit = 5
 
 stageOneDuration = 30   # These 6 variables holds the duration for each traffic light stage in seconds
 stageTwoDuration = 3    #
@@ -53,13 +54,18 @@ stageFourDuration = 30  #
 stageFiveDuration = 3   #
 stageSixDuration = 3    #
 
+timeoutFlag = False
+timeoutStart = 0 
+adminTimeout = 10 # Prevents editing variables after 10 seconds.
+userPinTryLimit = 3
+mainTimeout = 120
+
 currentStage = 0        # Tracks the current traffic stage.
 pedestrianCounter = 0
 
 
-
 lastDetectedChange = 0 # Hold time for pushbutton debounce.
-bouncyTimer = 0.4 # Pushbutton debounce delay in seconds.
+bouncyTimer = 0.3 # Pushbutton debounce delay in seconds.
 
 # Pushbutton config
 
@@ -67,8 +73,11 @@ pushbuttonPin = 10  # arduino pin number
 
 # ULTRASONIC SENSOR CONFIG
 
-trigPin = 19
-echoPin = 18
+UsDistanceTrigPin = 19
+UsDistanceEchoPin = 18
+
+UsHeightTrigPin = 15
+UsHeightEchoPin = 16
 
 # 7 SEGMENT REGISTER PINS 
 
@@ -92,8 +101,7 @@ shcp2Pin = 11 # Clock Pin # traffic lights
 
 
 
-
-def boardsetup():
+def board_setup():
     """
     Initializes the pins on the arduino board. First part of the code that gets run.
     Parameters:
@@ -110,7 +118,7 @@ def boardsetup():
     board.set_pin_mode_digital_input_pullup(pushbuttonPin, callback=pushbutton_callback)
 
     # Init pins for ultrasonic sensor
-    board.set_pin_mode_sonar(trigPin, echoPin, timeout=20000)
+    board.set_pin_mode_sonar(UsDistanceTrigPin, UsDistanceEchoPin, timeout=20000)
 
     # Init pins for shift register for traffic light leds
     board.set_pin_mode_digital_output(ds2Pin)
@@ -134,7 +142,7 @@ def boardsetup():
     
 
 
-def setup():
+def setup_function():
     """
     The setup function that initializes the program by displaying the service menu and setting the user's choice.
 
@@ -154,7 +162,7 @@ def setup():
 
 
 # Control Subsystem
-def loop():
+def display_loop():
 
     """
     The main loop function that controls the execution of different operating modes based on user choice.
@@ -268,18 +276,27 @@ def maintenance_adjustment_mode():
 
 
     """
-
-    global ultraSensorCutoff
     global settingPin
+    global userPinTryLimit
+    global ultraSensorCutoff
     global stageOneDuration
     global stageTwoDuration
     global stageThreeDuration
     global stageFourDuration
     global stageFiveDuration
     global stageSixDuration
+    global timeoutFlag
+    global timeoutStart
     userAuth = 0
+    userPinTries = 0
     # print(sevenSeg("HAL1")) # Remove this later.
     print("Entered Maintenance Mode")
+    print(timeoutFlag)
+    timeoutNow = time.time()
+    if (timeoutFlag == True) and (timeoutNow - timeoutStart < mainTimeout):
+        print(f"You have been locked out, please try again after: {mainTimeout - int(((timeoutNow - timeoutStart)))}s\n")
+        setup_function()
+        return
     try:
         while True:
             # Input validation for user pin.
@@ -287,8 +304,20 @@ def maintenance_adjustment_mode():
                 userPin = int(input("Please enter pin: "))
                 if userPin == settingPin:
                     print("Gained access!\n")
+                    adminTimeoutStart = time.time()
                     userAuth = 1
                 else:
+                    if userPinTries == (userPinTryLimit - 1):
+                        print("Too many incorrect attempts!\n")
+                        print("Access blocked for 120 seconds!\n")
+                        timeoutNow = 0
+                        timeoutFlag = True
+                        time.sleep(0.25)
+                        timeoutStart = time.time()
+                        setup_function()
+                        return
+                    userPinTries += 1
+                    print(f"Tries left: {userPinTryLimit - userPinTries}\n")
                     print("Incorrect pin!\n")
             # Main logic  for maintenance adjustment mode
             print("Available parameters\n"
@@ -300,9 +329,14 @@ def maintenance_adjustment_mode():
             userEdit = int(input("Please select which parameter you want to edit: "))
             if userEdit == 0:
                 print("Exiting Maintenance Mode...")
-                setup()
+                setup_function()
                 return
             if userEdit == 1:
+                adminTimeoutEnd = time.time()
+                if (adminTimeoutEnd - adminTimeoutStart) >= adminTimeout:
+                    print("You have been timed out for being idle for too long!")
+                    adminTimeoutEnd = 0
+                    break
                 print("Editing the ultrasonic sensor cutoff distance...\n "
                     "Please select an integer from 1 - 20 cm\n"
                      )
@@ -319,6 +353,11 @@ def maintenance_adjustment_mode():
                     except ValueError:
                         print("Please enter a valid integer.")
             if userEdit == 2:
+                adminTimeoutEnd = time.time()
+                if (adminTimeoutEnd - adminTimeoutStart) >= adminTimeout:
+                    print("You have been timed out for being idle for too long!")
+                    adminTimeoutEnd = 0
+                    break
                 print("Please enter a new 4 digit PIN.")
                 while True:
                     try:
@@ -333,6 +372,11 @@ def maintenance_adjustment_mode():
                     except ValueError:
                         print("Please enter a valid integer.")
             if userEdit == 3:
+                adminTimeoutEnd = time.time()
+                if (adminTimeoutEnd - adminTimeoutStart) >= adminTimeout:
+                    print("You have been timed out for being idle for too long!")
+                    adminTimeoutEnd = 0
+                    break
                 print("Current stage duration intervals:\n"
                       f"Stage One  : {stageOneDuration}\n"
                       f"Stage Two  : {stageTwoDuration}\n"
@@ -422,6 +466,7 @@ def maintenance_adjustment_mode():
                       "Space character\n"
                       "Note: Invalid characters will be replaced with a space instead\n"
                       "Note: Maximum output length of message will be 4 alphanumeric characters\n")
+
                 while True:
                     try:
                         userMessage = input("Message: ")
@@ -436,12 +481,13 @@ def maintenance_adjustment_mode():
                         print("\n")
                         break        
             else:
-                print("Please entered a valid option!")            
+                print("Please entered a valid option!")
+
     except ValueError:
         print("Please enter a valid integer.\n")
     except KeyboardInterrupt:
         print("\n")
-        setup()
+        setup_function()
 
 # 7 SEG HELPER FUCNTIONS
 
@@ -542,7 +588,7 @@ def normal_operation_mode():
        # print(f"Time for one normal operation mode cycle: {endTime - startTime}sec")
     except KeyboardInterrupt:
         print("\n")
-        setup()
+        setup_function()
 
 
 
@@ -570,22 +616,53 @@ def data_observation_mode():
     """
 
     global distanceMeasured
-   #  print(sevenSeg("HAL1")) # Remove this later.
-    print("Entered Data Observation Mode")
+   # print(sevenSeg("HAL1")) # Remove this later.
+    print("Entered Data Observation Mode\n")
+
     try:
-        if len(distanceMeasured) < 20:
-            print("Insufficient data is available for the plot. Returning to the menu\n")
-            time.sleep(1.5)
-            setup()
-            return
-        else:
-            print("Displaying graph!")
-            traffic_graph_plot(distanceMeasured)
-            setup()
-            return
+        while True:
+            print("Available parameters\n"
+                 f"1. Display Distance Graph\n"
+                 f"2. Display velocity Graph\n"
+                 f"0. Exit Maintenance Mode\n")
+
+            graphChoice = int(input("Enter your choice: "))
+
+            if graphChoice == 0:
+                print("Exiting Data Observation Mode...\n")
+                setup_function()
+                return
+            elif graphChoice == 1:
+                if len(distanceMeasured) < 20:
+                    print("Insufficient data is available for the plot.\n")
+                else:
+                    print("Displaying graph!\n")
+                    traffic_graph_plot(distanceMeasured)
+            else:
+                print("Invalid choice. Please try again.\n")
+
+    except ValueError:
+        print("Please enter a valid integer.\n")
     except KeyboardInterrupt:
         print("\n")
-        setup()
+        setup_function()
+
+
+
+    # try:
+    #     if len(distanceMeasured) < 20:
+    #         print("Insufficient data is available for the plot. Returning to the menu\n")
+    #         time.sleep(1.5)
+    #         setup_function()
+    #         return
+    #     else:
+    #         print("Displaying graph!")
+    #         traffic_graph_plot(distanceMeasured)
+    #         setup_function()
+    #         return
+    # except KeyboardInterrupt:
+    #     print("\n")
+    #     setup_function()
 
 def traffic_graph_plot(distanceMeasured):
 
@@ -601,7 +678,7 @@ def traffic_graph_plot(distanceMeasured):
         distanceMeasured: A list of distance measurements in centimeters.
 
     Returns:
-        None
+        No returns
 
     """
 
@@ -612,9 +689,12 @@ def traffic_graph_plot(distanceMeasured):
     plt.xlim(0, len(distanceMeasured))  
     plt.ylim(0, max(distanceMeasured) + 10)  
     plt.legend(['Traffic Distance'])  
+    plt.savefig('traffic_graph.png', dpi=300, bbox_inches='tight')
+
+    # Export a file as a png
     plt.show(block=True)  
 
-def read_sensor():
+def read_sensor(trigPin):
 
     """
     Reads the distance to the nearest object using an ultrasonic sensor.
@@ -624,7 +704,7 @@ def read_sensor():
     The average of the four readings is calculated and returned as the final distance measurement.
 
     Parameters:
-        None
+        No Parameters
     Returns:
         float: The average distance to the nearest object in centimeters, calculated from four sensor readings.
 
@@ -941,7 +1021,7 @@ def traffic_stage_manager():
                 if currentStage == 4:
                     stageCycle = 0
                     sensorPollInterval = 0   
-                    blinkDelay = 0.1
+                    blinkDelay = 0.2
                     lastPollTime = time.time()
                     while stageEndTime > time.time():
                         startTime = time.time()
@@ -957,12 +1037,14 @@ def traffic_stage_manager():
                         #print(stageCycle)
                         if time.time() - lastPollTime >= sensorPollInterval:
                             sensorPollInterval = 0
-                            distanceMeasured.append(read_sensor())
+                            distanceMeasured.append(read_sensor(UsDistanceTrigPin))
                             if len(distanceMeasured) == 21:
                                 distanceMeasured.pop(0)
                             if len(distanceMeasured) >= 2:
                                 carVelocity = distanceMeasured[-2] - distanceMeasured[-1] / 1.5
                                 print(f"Vehicle velocity: {carVelocity:.2f} cm/s")
+                                if carVelocity >= 5:
+                                    print(f"Overspeed warning! {carVelocity:.2f} cm/s. Exceeded by {(carVelocity - overSpeedLimit):.2f}")
             
                             print(f"Distance to nearest vehicle: {distanceMeasured[-1]} cm\n")
             
@@ -979,13 +1061,15 @@ def traffic_stage_manager():
 
                 while stageEndTime > time.time():
                         startTime = time.time()
-                        distanceMeasured.append(read_sensor())
+                        distanceMeasured.append(read_sensor(UsDistanceTrigPin))
                         # So that distanceMeasured only contains the latest data.
                         if len(distanceMeasured) == 21:
                             distanceMeasured.pop(0)
                         # Calculates vehicle velocity based on the distance <- need to work on  this a bit more
                         if len(distanceMeasured) >= 2:
                             carVelocity = distanceMeasured[-2] - distanceMeasured[-1] / 1.5
+                            if carVelocity >= overSpeedLimit:
+                                print(f"Overspeed warning! {carVelocity:.2f} cm/s. Exceeded by {(carVelocity - overSpeedLimit):.2f}")
                             print(f"Vehicle velocity: {carVelocity:.2f} cm/s")
 
                         print(f"Distance to nearest vehicle: {distanceMeasured[-1]} cm\n")
@@ -1012,13 +1096,13 @@ def traffic_stage_manager():
             #14. ctrl+c to break from the loop and return to the display service menu function
             except KeyboardInterrupt:
                 print("\n")
-                setup()
+                setup_function()
                 return
 
 
 if __name__ == '__main__':
-    boardsetup()
-    setup()
-    loop()
+    board_setup()
+    setup_function()
+    display_loop()
 
 

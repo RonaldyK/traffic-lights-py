@@ -8,3 +8,4 @@ settings.json
 shiftreg.py
 trafficlights.py
 pushbutton.py
+thermistor.py
